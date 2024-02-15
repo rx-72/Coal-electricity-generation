@@ -15,7 +15,7 @@
                year: new Date(Date.UTC(d["year"])),
                country: d["country"],
                electricity_generated: d["coal_electricity"],
-               unique_index: d["index"], 
+               id: +d["index"], 
             });
         });
         data = data;

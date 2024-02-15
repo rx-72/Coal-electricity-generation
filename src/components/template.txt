@@ -9,7 +9,7 @@
     let gx;
     let gy;
 
-    // $: console.log(data)
+    $: console.log(data)
 
     //setting dimensions
     const width = 928;
@@ -44,7 +44,7 @@
     $: countries = d3.group(data, d => d.country);
     // $: console.log(countries)
 
-    const points = data.map(data, (d) => [d.year, d.electricity_generated, d.country]);
+    $: points = data.map((d) => [x(d.year), y(d.electricity_generated), d.country, d.id]);
 
     $: console.log(points)
 
@@ -87,16 +87,26 @@
     $: d3.select(svg).on('pointerleave', pointerleft);
     $: d3.select(svg).on('touchstart', event => event.preventDefault());
 
-    // $: console.log(tooltipPt)
 
+    // 1. make sure that when you move, you're selecting out the right point
+    // 2. save that point into a JS variable
+    // 3. when rendering path, check if selected point is for the path, then change color accordingly
+    let selected_id = null;
+    $: console.log(selected_id);
+    
     function pointermoved(event) {
         const [xm, ym] = d3.pointer(event);
         const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
-        const [x, y, k] = points[i];
-        path.style("stroke", ({z}) => z === k ? null : "#ddd").filter(({z}) => z === k).raise();
-        dot.attr("transform", `translate(${x},${y})`);
-        dot.select("text").text(k);
-        svg.property("value", data[i]).dispatch("input", {bubbles: true});
+        // const [x, y, k, ui] = points[i];
+        selected_id = points[i][3];
+        countries = countries;
+        // console.log(points[i]);
+        // console.log(x, y, k, ui);
+
+        // path.style("stroke", ({z}) => z === k ? null : "#ddd").filter(({z}) => z === k).raise();
+        // dot.attr("transform", `translate(${x},${y})`);
+        // dot.select("text").text(k);
+        // svg.property("value", data[i]).dispatch("input", {bubbles: true});
     }
 
     function pointerentered() {
@@ -111,11 +121,22 @@
         svg.dispatch("input", {bubbles: true});
     }
 
+    function hovered_color(groups) {
+        // console.log(groups);
+        for (let x of groups) {
+            if (x["id"] === selected_id) {
+                console.log(x);
+                return "steelblue"
+            }
+        }
+        return "gray"
+    }
+
     let hovered = -1;
 
 </script>
 
-    <div class="coal-coal_electricity generation">
+    <div class="coal_electricity generation">
         <svg
         bind:this={svg}
             {width}
@@ -144,7 +165,7 @@
             {#each [...countries] as [name, data]}
                 <path
                 key={name}
-                stroke="lightblue"
+                stroke={hovered_color(data)}
                 d={line(data)}
 
                 />

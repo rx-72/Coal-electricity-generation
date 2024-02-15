@@ -14,7 +14,7 @@
     //setting dimensions
     const width = 928;
     const height = 800;
-    const marginTop = 10;
+    const marginTop = 50;
     const marginRight = 30;
     const marginBottom = 20;
     const marginLeft = 100;
@@ -44,9 +44,10 @@
     $: countries = d3.group(data, d => d.country);
     // $: console.log(countries)
 
-    $: points = data.map((d) => [x(d.year), y(d.electricity_generated), d.country, d.unique_index]);
+    $: points = data.map((d) => [x(d.year), y(d.electricity_generated), 
+    d.country, d.id, d.year, d.electricity_generated]);
 
-    $: console.log(points)
+    // $: console.log(points)
 
     $: color = d3
     .scaleOrdinal()
@@ -79,7 +80,9 @@
     let tooltipPt = null;
     function onPointerMove(event) {
         const i = bisect(data, x.invert(d3.pointer(event)[0]));
-        tooltipPt = data[i];
+        if (moused !== null) {
+            tooltipPt = moused
+        }
     }
 
     $: d3.select(svg).on('pointerenter', pointerentered);
@@ -87,16 +90,24 @@
     $: d3.select(svg).on('pointerleave', pointerleft);
     $: d3.select(svg).on('touchstart', event => event.preventDefault());
 
-
     // 1. make sure that when you move, you're selecting out the right point
     // 2. save that point into a JS variable
     // 3. when rendering path, check if selected point is for the path, then change color accordingly
+    let selected_id = null;
+    let moused = null;
+    // $: console.log(selected_id);
+    $: console.log(moused);
+    
     function pointermoved(event) {
         const [xm, ym] = d3.pointer(event);
         const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
-        const [x, y, k, ui] = points[i];
-        $: console.log(x, y, k, ui);
-        const mouse_point = [x, y, k, ui]
+        // const [x, y, k, ui] = points[i];
+        selected_id = points[i][3];
+        moused = points[i];
+        countries = countries;
+        $: console.log(moused[0]);
+        // console.log(x, y, k, ui);
+
         // path.style("stroke", ({z}) => z === k ? null : "#ddd").filter(({z}) => z === k).raise();
         // dot.attr("transform", `translate(${x},${y})`);
         // dot.select("text").text(k);
@@ -115,11 +126,33 @@
         svg.dispatch("input", {bubbles: true});
     }
 
+    function hovered_color(groups) {
+        // console.log(groups);
+        for (let x of groups) {
+            if (x["id"] === selected_id) {
+                // console.log(x);
+                return "steelblue"
+            }
+        }
+        return "lightgray"
+    }
+
+    function hovered_stroke_width(groups) {
+        // console.log(groups);
+        for (let x of groups) {
+            if (x["id"] === selected_id) {
+                // console.log(x);
+                return 10
+            }
+        }
+        return 1.5
+    }
+
     let hovered = -1;
 
 </script>
 
-    <div class="coal-coal_electricity generation">
+    <div class="coal_electricity generation">
         <svg
         bind:this={svg}
             {width}
@@ -140,17 +173,18 @@
                 font-weight="bold"
                 text-anchor="start"
             >
-                Electricity generated per year (Terawatt-hours log scaled)
+                Electricity generated per year (Terawatt-hours, log scaled)
             </text>
         </g>
 
-        <g stroke-width=1.5 stroke-linejoin="round" stroke-linecap="round" fill="none">
+        <g stroke-linejoin="round" stroke-linecap="round" fill="none">
             {#each [...countries] as [name, data]}
                 <path
                 key={name}
-                stroke="gray"
+                stroke={hovered_color(data)}
                 d={line(data)}
-
+                stroke-width={hovered_stroke_width(data)}
+                style="bold"
                 />
             {/each}
         </g>
@@ -181,8 +215,8 @@
 
         <!-- tooltip -->
         {#if tooltipPt}
-            <g transform="translate({x(tooltipPt.year)},{y(tooltipPt.electricity_generated)})">
-                <text font-weight="bold">{tooltipPt.country}</text>
+            <g transform="translate({x(tooltipPt[0])},{y(tooltipPt[1])})">
+                <text font-weight="bold">{tooltipPt[2]}: </text>
             </g>
         {/if}
 
