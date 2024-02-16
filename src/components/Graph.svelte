@@ -173,7 +173,7 @@
                 font-weight="bold"
                 text-anchor="start"
             >
-                Electricity generated per year (Terawatt-hours, log scaled)
+                Terawatt-hours of Electricity Generated per Year (Natural Log Scaled)
             </text>
         </g>
 
