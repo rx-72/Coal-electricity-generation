@@ -191,7 +191,9 @@
 
     <div class="coal_electricity generation">
         <h1 
-        style="max-width: 100%; height: auto; overflow: visible; font: 30px sans-serif; text-align: center"
+        style="max-width: 100%; height: auto; overflow: visible; 
+        font: 24px sans-serif; text-align: center"
+        font-weight="bold"
         >   
             Exploring Electricity Generation by Coal from Different Nations</h1>
         <svg
@@ -230,11 +232,13 @@
         <g bind:this={gy} transform="translate({marginLeft},0)">
         </g>
         <text
-                x="55"
-                y=995
+                x="480"
+                y=1010
                 fill="#000"
                 font-weight="bold"
                 text-anchor="start"
+                margin=0
+                text-align="center"
             >
                 Year
             </text>
