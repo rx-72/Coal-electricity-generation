@@ -162,12 +162,23 @@
         >
 
         <!-- x-axis -->
-        <g bind:this={gx} transform="translate(0,{height - marginBottom})" />
+        <g bind:this={gx} transform="translate(0,{height - marginBottom})" >
+            <text
+                x="5"
+                y={marginTop}
+                dy="0.32em"
+                fill="#000"
+                font-weight="bold"
+                text-anchor="start"
+            >
+                Year
+            </text>
+        </g>
         <!-- y-axis -->
         <g bind:this={gy} transform="translate({marginLeft},0)">
             <text
                 x="5"
-                y={marginTop}
+                y={marginBottom}
                 dy="0.32em"
                 fill="#000"
                 font-weight="bold"
