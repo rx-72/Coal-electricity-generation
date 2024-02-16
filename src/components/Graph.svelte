@@ -153,6 +153,11 @@
 </script>
 
     <div class="coal_electricity generation">
+        <h1 
+        style="max-width: 100%; height: auto; overflow: visible; font: 30px sans-serif; text-align: center"
+        >   
+            Exploring Electricity Generation by Coal from Different Nations</h1>
+
         <svg
         bind:this={svg}
             {width}
