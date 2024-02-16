@@ -13,7 +13,7 @@
 
     //setting dimensions
     const width = 928;
-    const height = 800;
+    const height = 1000;
     const marginTop = 50;
     const marginRight = 30;
     const marginBottom = 20;
@@ -278,7 +278,7 @@
             text-anchor="start"
             font-size = "30px"
         >
-            Original Value: {Math.round((2.71828** log_val)* 100)/100}
+            Original Value: {Math.round((2.71828** log_val)* 100)/100} Terawatt-hrs
         </text>
 
 
