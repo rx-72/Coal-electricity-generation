@@ -206,10 +206,6 @@
 
         <!-- points -->
         <g stroke="#000" stroke-opacity="0.2">
-            <h1 
-            style="max-width: 100%; height: auto; overflow: visible; font: 30px sans-serif; text-align: center"
-            >   
-            Exploring Electricity Generation by Coal from Different Nations</h1>
             {#each data as d, i}
                 <circle
                 key={i}
