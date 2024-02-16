@@ -9,15 +9,16 @@
     let gx;
     let gy;
 
-    $: console.log(data)
+    // $: console.log(data)
 
     //setting dimensions
     const width = 928;
-    const height = 800;
-    const marginTop = 10;
+    const height = 1000;
+    const marginTop = 50;
     const marginRight = 30;
     const marginBottom = 20;
     const marginLeft = 100;
+    let text = 0
 
     // create x and y axis scales
     $: x = d3
@@ -44,9 +45,10 @@
     $: countries = d3.group(data, d => d.country);
     // $: console.log(countries)
 
-    $: points = data.map((d) => [x(d.year), y(d.electricity_generated), d.country, d.id]);
+    $: points = data.map((d) => [x(d.year), y(d.electricity_generated), 
+    d.country, d.id, d.year, d.electricity_generated, d.electricity_generated_norm]);
 
-    $: console.log(points)
+    // $: console.log(points)
 
     $: color = d3
     .scaleOrdinal()
@@ -79,7 +81,9 @@
     let tooltipPt = null;
     function onPointerMove(event) {
         const i = bisect(data, x.invert(d3.pointer(event)[0]));
-        tooltipPt = data[i];
+        if (moused !== null) {
+            tooltipPt = moused
+        }
     }
 
     $: d3.select(svg).on('pointerenter', pointerentered);
@@ -87,20 +91,36 @@
     $: d3.select(svg).on('pointerleave', pointerleft);
     $: d3.select(svg).on('touchstart', event => event.preventDefault());
 
-
     // 1. make sure that when you move, you're selecting out the right point
     // 2. save that point into a JS variable
     // 3. when rendering path, check if selected point is for the path, then change color accordingly
     let selected_id = null;
-    $: console.log(selected_id);
-    
+    let country_val =  null;
+    let time_val = null;
+    let x_pos = -500;
+    let y_pos = null;
+    let y_pos2 = null;
+    let y_pos3 = null;
+    let moused = null;
+    let log_val = null;
+    let norm_val = null;
+    // $: console.log(selected_id);
     function pointermoved(event) {
         const [xm, ym] = d3.pointer(event);
         const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
         // const [x, y, k, ui] = points[i];
+        x_pos = points[i][0];
+        y_pos = points[i][1] - 60;
+        y_pos2 = points[i][1] - 30;
+        y_pos3 = points[i][1];
+        country_val = points[i][2];
         selected_id = points[i][3];
+        time_val = points[i][4].getFullYear();
+        log_val = points[i][5];
+        norm_val = points[i][6]
+        moused = points[i];
         countries = countries;
-        // console.log(points[i]);
+        $: console.log(moused);
         // console.log(x, y, k, ui);
 
         // path.style("stroke", ({z}) => z === k ? null : "#ddd").filter(({z}) => z === k).raise();
@@ -125,11 +145,44 @@
         // console.log(groups);
         for (let x of groups) {
             if (x["id"] === selected_id) {
-                console.log(x);
+                // console.log(x);
                 return "steelblue"
             }
         }
-        return "gray"
+        return "lightgray"
+    }
+
+    function hovered_stroke_width(groups) {
+        // console.log(groups);
+        for (let x of groups) {
+            if (x["id"] === selected_id) {
+                // console.log(x);
+                return 10
+            }
+        }
+        return 1.5
+    }
+
+    function hovered_radius(groups) {
+        // console.log(groups);
+        
+        if (groups.id === selected_id) {
+                // console.log(x);
+            return 7
+        }
+        
+        return 1.5
+    }
+
+    function hovered_fill(groups) {
+        // console.log(groups);
+        
+        if (groups.id === selected_id) {
+                // console.log(x);
+            return "orange"
+        }
+        
+        return "lightblue"
     }
 
     let hovered = -1;
@@ -137,6 +190,10 @@
 </script>
 
     <div class="coal_electricity generation">
+        <h1 
+        style="max-width: 100%; height: auto; overflow: visible; font: 30px sans-serif; text-align: center"
+        >   
+            Exploring Electricity Generation by Coal from Different Nations</h1>
         <svg
         bind:this={svg}
             {width}
@@ -144,46 +201,88 @@
             viewBox="0 0 {width} {height}"
             style="max-width: 100%; height: auto; overflow: visible; font: 10px sans-serif;"
         >
-
-        <!-- x-axis -->
-        <g bind:this={gx} transform="translate(0,{height - marginBottom})" />
-        <!-- y-axis -->
-        <g bind:this={gy} transform="translate({marginLeft},0)">
-            <text
-                x="5"
-                y={marginTop}
-                dy="0.32em"
-                fill="#000"
-                font-weight="bold"
-                text-anchor="start"
-            >
-                Electricity generated per year (Terawatt-hours log scaled)
-            </text>
-        </g>
-
-        <g stroke-width=1.5 stroke-linejoin="round" stroke-linecap="round" fill="none">
+        <g stroke-linejoin="round" stroke-linecap="round" fill="none">
             {#each [...countries] as [name, data]}
                 <path
                 key={name}
                 stroke={hovered_color(data)}
                 d={line(data)}
-
+                stroke-width={hovered_stroke_width(data)}
+                style="bold"
                 />
             {/each}
         </g>
 
-        <!-- points -->
         <g stroke="#000" stroke-opacity="0.2">
             {#each data as d, i}
                 <circle
                 key={i}
                 cx={x(d.year)}
                 cy={y(d.electricity_generated)}
-                fill="lightblue"
-                r="1.5"
+                fill={hovered_fill(d)}
+                r={hovered_radius(d)}
                 />
             {/each}
         </g>
+        <!-- x-axis -->
+        <g bind:this={gx} transform="translate(0,{height - marginBottom})" />
+        <!-- y-axis -->
+        <g bind:this={gy} transform="translate({marginLeft},0)">
+        </g>
+        <text
+                x="55"
+                y=995
+                fill="#000"
+                font-weight="bold"
+                text-anchor="start"
+            >
+                Year
+            </text>
+        <text 
+            y=30
+            font-weight="bold"
+            text-anchor="start"
+        >
+            Terawatt-hours of Electricity Generated Per Year (Natural Log Scaled)
+        </text>
+
+        <text
+        x={x_pos}
+        y={y_pos}
+        dx= "0.32em"
+        dy="0.32em"
+        fill="#000"
+        font-weight="bold"
+        text-anchor="start"
+        font-size = "30px"
+    >
+        Country: {country_val} 
+    </text>
+    <text
+        x={x_pos}
+        y= {y_pos2}
+        dx= "0.32em"
+        dy="0.32em"
+        fill="#000"
+        font-weight="bold"
+        text-anchor="start"
+        font-size = "30px"
+    >
+        Year: {time_val}
+    </text>
+        <text
+            x={x_pos}
+            y= {y_pos3}
+            fill="#000"
+            dx= "0.32em"
+            dy="0.32em"
+            font-weight="bold"
+            text-anchor="start"
+            font-size = "30px"
+        >
+            Original Value: {norm_val} Terawatt-hrs
+        </text>
+
 
         <g display="none">
             <circle
@@ -198,10 +297,10 @@
 
         <!-- tooltip -->
         {#if tooltipPt}
-            <g transform="translate({x(tooltipPt.year)},{y(tooltipPt.electricity_generated)})">
-                <text font-weight="bold">{tooltipPt.country}</text>
+            <g transform="translate({x(tooltipPt[0])},{y(tooltipPt[1])})">
+                <text font-weight="bold">{tooltipPt[2]}: </text>
             </g>
         {/if}
-
         </svg>
-    </div>
+        
+    </div>  

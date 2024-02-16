@@ -14,8 +14,9 @@
             data.push({
                year: new Date(Date.UTC(d["year"])),
                country: d["country"],
-               electricity_generated: d["coal_electricity"],
+               electricity_generated: d["coal_electricity_log"],
                id: +d["index"], 
+               electricity_generated_norm : d["coal_electricity"],
             });
         });
         data = data;

@@ -46,7 +46,7 @@
     // $: console.log(countries)
 
     $: points = data.map((d) => [x(d.year), y(d.electricity_generated), 
-    d.country, d.id, d.year, d.electricity_generated]);
+    d.country, d.id, d.year, d.electricity_generated, d.electricity_generated_norm]);
 
     // $: console.log(points)
 
@@ -103,6 +103,7 @@
     let y_pos3 = null;
     let moused = null;
     let log_val = null;
+    let norm_val = null;
     // $: console.log(selected_id);
     function pointermoved(event) {
         const [xm, ym] = d3.pointer(event);
@@ -116,9 +117,10 @@
         selected_id = points[i][3];
         time_val = points[i][4].getFullYear();
         log_val = points[i][5];
+        norm_val = points[i][6]
         moused = points[i];
         countries = countries;
-        //$: console.log(moused[0]);
+        $: console.log(moused);
         // console.log(x, y, k, ui);
 
         // path.style("stroke", ({z}) => z === k ? null : "#ddd").filter(({z}) => z === k).raise();
@@ -278,7 +280,7 @@
             text-anchor="start"
             font-size = "30px"
         >
-            Original Value: {Math.round((2.71828** log_val)* 100)/100} Terawatt-hrs
+            Original Value: {norm_val} Terawatt-hrs
         </text>
 
 
