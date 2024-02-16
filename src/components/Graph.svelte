@@ -178,7 +178,7 @@
         <g bind:this={gy} transform="translate({marginLeft},0)">
             <text
                 x="5"
-                y={marginBottom}
+                y={marginTop}
                 dy="0.32em"
                 fill="#000"
                 font-weight="bold"
