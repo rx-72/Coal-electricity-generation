@@ -166,7 +166,6 @@
             <text
                 x="5"
                 y={marginBottom}
-                dy="0.32em"
                 fill="#000"
                 font-weight="bold"
                 text-anchor="start"
