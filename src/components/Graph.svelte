@@ -18,6 +18,7 @@
     const marginRight = 30;
     const marginBottom = 20;
     const marginLeft = 100;
+    let text = 0
 
     // create x and y axis scales
     $: x = d3
@@ -94,18 +95,30 @@
     // 2. save that point into a JS variable
     // 3. when rendering path, check if selected point is for the path, then change color accordingly
     let selected_id = null;
+    let country_val =  null;
+    let time_val = null;
+    let x_pos = -500;
+    let y_pos = null;
+    let y_pos2 = null;
+    let y_pos3 = null;
     let moused = null;
+    let log_val = null;
     // $: console.log(selected_id);
-    $: console.log(moused);
-    
     function pointermoved(event) {
         const [xm, ym] = d3.pointer(event);
         const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
         // const [x, y, k, ui] = points[i];
+        x_pos = points[i][0];
+        y_pos = points[i][1] - 60;
+        y_pos2 = points[i][1] - 30;
+        y_pos3 = points[i][1];
+        country_val = points[i][2];
         selected_id = points[i][3];
+        time_val = points[i][4].getFullYear();
+        log_val = points[i][5];
         moused = points[i];
         countries = countries;
-        $: console.log(moused[0]);
+        //$: console.log(moused[0]);
         // console.log(x, y, k, ui);
 
         // path.style("stroke", ({z}) => z === k ? null : "#ddd").filter(({z}) => z === k).raise();
@@ -148,6 +161,28 @@
         return 1.5
     }
 
+    function hovered_radius(groups) {
+        // console.log(groups);
+        
+        if (groups.id === selected_id) {
+                // console.log(x);
+            return 7
+        }
+        
+        return 1.5
+    }
+
+    function hovered_fill(groups) {
+        // console.log(groups);
+        
+        if (groups.id === selected_id) {
+                // console.log(x);
+            return "orange"
+        }
+        
+        return "lightblue"
+    }
+
     let hovered = -1;
 
 </script>
@@ -157,7 +192,6 @@
         style="max-width: 100%; height: auto; overflow: visible; font: 30px sans-serif; text-align: center"
         >   
             Exploring Electricity Generation by Coal from Different Nations</h1>
-
         <svg
         bind:this={svg}
             {width}
@@ -165,33 +199,6 @@
             viewBox="0 0 {width} {height}"
             style="max-width: 100%; height: auto; overflow: visible; font: 10px sans-serif;"
         >
-
-        <!-- x-axis -->
-        <g bind:this={gx} transform="translate(0,{height - marginBottom})" >
-            <text
-                x="5"
-                y={marginBottom}
-                fill="#000"
-                font-weight="bold"
-                text-anchor="start"
-            >
-                Year
-            </text>
-        </g>
-        <!-- y-axis -->
-        <g bind:this={gy} transform="translate({marginLeft},0)">
-            <text
-                x="5"
-                y={marginTop}
-                dy="0.32em"
-                fill="#000"
-                font-weight="bold"
-                text-anchor="start"
-            >
-                Terawatt-hours of Electricity Generated per Year (Natural Log Scaled)
-            </text>
-        </g>
-
         <g stroke-linejoin="round" stroke-linecap="round" fill="none">
             {#each [...countries] as [name, data]}
                 <path
@@ -204,18 +211,76 @@
             {/each}
         </g>
 
-        <!-- points -->
         <g stroke="#000" stroke-opacity="0.2">
             {#each data as d, i}
                 <circle
                 key={i}
                 cx={x(d.year)}
                 cy={y(d.electricity_generated)}
-                fill="lightblue"
-                r="1.5"
+                fill={hovered_fill(d)}
+                r={hovered_radius(d)}
                 />
             {/each}
         </g>
+        <!-- x-axis -->
+        <g bind:this={gx} transform="translate(0,{height - marginBottom})" />
+        <!-- y-axis -->
+        <g bind:this={gy} transform="translate({marginLeft},0)">
+        </g>
+        <text
+                x="55"
+                y=800
+                fill="#000"
+                font-weight="bold"
+                text-anchor="start"
+            >
+                Year
+            </text>
+        <text 
+            y=30
+            font-weight="bold"
+            text-anchor="start"
+        >
+            Terawatt-hours of Electricity Generated Per Year (Natural Log Scaled)
+        </text>
+
+        <text
+        x={x_pos}
+        y={y_pos}
+        dx= "0.32em"
+        dy="0.32em"
+        fill="#000"
+        font-weight="bold"
+        text-anchor="start"
+        font-size = "30px"
+    >
+        Country: {country_val} 
+    </text>
+    <text
+        x={x_pos}
+        y= {y_pos2}
+        dx= "0.32em"
+        dy="0.32em"
+        fill="#000"
+        font-weight="bold"
+        text-anchor="start"
+        font-size = "30px"
+    >
+        Year: {time_val}
+    </text>
+        <text
+            x={x_pos}
+            y= {y_pos3}
+            fill="#000"
+            dx= "0.32em"
+            dy="0.32em"
+            font-weight="bold"
+            text-anchor="start"
+            font-size = "30px"
+        >
+            Original Value: {Math.round((2.71828** log_val)* 100)/100}
+        </text>
+
 
         <g display="none">
             <circle
@@ -234,6 +299,6 @@
                 <text font-weight="bold">{tooltipPt[2]}: </text>
             </g>
         {/if}
-
         </svg>
-    </div>
+        
+    </div>  
